@@ -5,14 +5,14 @@ class Problem(object):
 
     def __init__(self, initial):
         self.initial = initial
-        self.type = len(initial) # Defines board type, either 6x6 or 9x9
-        self.height = int(self.type/3) # Defines height of quadrant (2 for 6x6, 3 for 9x9)
+        self.type = len(initial) # Define el tipo de tablero, ya sea 6x6 o 9x9
+        self.height = int(self.type/3) # Define la altura del cuadrante (2 para 6x6, 3 para 9x9)
 
     def goal_test(self, state):
-        # Expected sum of each row, column or quadrant.
+        # Suma esperada de cada fila, columna o cuadrante.
         total = sum(range(1, self.type+1))
 
-        # Check rows and columns and return false if total is invalid
+        # Verifique filas y columnas y devuelva falso si el total no es válido
         for row in range(self.type):
             if (len(state[row]) != self.type) or (sum(state[row]) != total):
                 return False
@@ -24,7 +24,7 @@ class Problem(object):
             if (column_total != total):
                 return False
 
-        # Check quadrants and return false if total is invalid
+        # Verifique los cuadrantes y devuelva falso si el total no es válido
         for column in range(0,self.type,3):
             for row in range(0,self.type,self.height):
 
@@ -38,25 +38,25 @@ class Problem(object):
 
         return True
 
-    # Return set of valid numbers from values that do not appear in used
+    # Devuelve un conjunto de números válidos de valores que no aparecen en usado
     def filter_values(self, values, used):
         return [number for number in values if number not in used]
 
-    # Return first empty spot on grid (marked with 0)
+    # Devuelve el primer lugar vacío en la cuadrícula (marcado con 0)
     def get_spot(self, board, state):
         for row in range(board):
             for column in range(board):
                 if state[row][column] == 0:
                     return row, column
 
-    # Filter valid values based on row
+    # Filtrar valores válidos según la fila
     def filter_row(self, state, row):
         number_set = range(1, self.type+1) # Defines set of valid numbers that can be placed on board
         in_row = [number for number in state[row] if (number != 0)]
         options = self.filter_values(number_set, in_row)
         return options
 
-    # Filter valid values based on column
+    # Filtrar valores válidos según la columna
     def filter_col(self, options, state, column):
         in_column = [] # List of valid values in spot's column
         for column_index in range(self.type):
@@ -65,9 +65,9 @@ class Problem(object):
         options = self.filter_values(options, in_column)
         return options
 
-    # Filter valid values based on quadrant
+    # Filtrar valores válidos según el cuadrante
     def filter_quad(self, options, state, row, column):
-        in_block = [] # List of valid values in spot's quadrant
+        in_block = [] # Lista de valores válidos en el cuadrante del spot
         row_start = int(row/self.height)*self.height
         column_start = int(column/3)*3
         
@@ -78,14 +78,14 @@ class Problem(object):
         return options    
 
     def actions(self, state):
-        row,column = self.get_spot(self.type, state) # Get first empty spot on board
+        row,column = self.get_spot(self.type, state) # Consigue el primer lugar vacío a bordo
 
-        # Remove spot's invalid options
+        # Eliminar las opciones no válidas del lugar
         options = self.filter_row(state, row)
         options = self.filter_col(options, state, column)
         options = self.filter_quad(options, state, row, column)
 
-        # Yield a state for each valid option
+        # Ceder un estado para cada opción válida
         for number in options:
             new_state = copy.deepcopy(state)
             new_state[row][column] = number
@@ -97,7 +97,7 @@ class Node:
         self.state = state
 
     def expand(self, problem):
-        # Return list of valid states
+        # Lista de devolución de estados válidos
         return [Node(state) for state in problem.actions(self.state)]
 
 def DFS(problem):
@@ -106,13 +106,13 @@ def DFS(problem):
         return start.state
 
     stack = []
-    stack.append(start) # Place initial node onto the stack
+    stack.append(start) # Coloque el nodo inicial en la pila
 
     while stack:
         node = stack.pop()
         if problem.goal_test(node.state):
             return node.state
-        stack.extend(node.expand(problem)) # Add viable states onto the stack
+        stack.extend(node.expand(problem)) # Agregue estados viables a la pila
 
     return None
 
